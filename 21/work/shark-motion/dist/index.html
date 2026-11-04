@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="세 개의 원으로 표현한 좌우 왕복 움직임">
+<title>SHARK — Beneath the Silence</title>
+<style>
+:root { --period: 2.4s; --size: 80px; --gap: 24px; --ink: #708090; --paper: #64b2d4; }
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 100%; min-height: 100%; background: var(--paper); }
+body { overflow: hidden; }
+main { height: 100svh; position: relative; }
+.swimmer { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+.fish { position: absolute; width: 16px; height: 16px; border-radius: 50%; background: #fff3ce; transform: translate(-50%, -50%); box-shadow: 0 0 16px #fff3ce55; }
+.fish[hidden] { display: none; }
+.motion { margin-left: -40px; margin-top: -40px; display: flex; flex-direction: column; gap: var(--gap); }
+.circle { width: var(--size); height: var(--size); border-radius: 50%; background: var(--ink); transform-origin: center; will-change: transform; animation: sway var(--period) infinite; }
+.circle:nth-child(1) { --range: 24px; animation-delay: -2.4s; }
+.circle:nth-child(2) { --range: 48px; animation-delay: -2.28s; }
+.circle:nth-child(3) { --range: 72px; animation-delay: -2.16s; }
+/* Quarter-cycle curves approximate sine motion: fast at center, slow at each end. */
+@keyframes sway {
+  0% { transform: translateX(0); animation-timing-function: cubic-bezier(.33,.52,.67,1); }
+  25% { transform: translateX(var(--range)); animation-timing-function: cubic-bezier(.33,0,.67,.48); }
+  50% { transform: translateX(0); animation-timing-function: cubic-bezier(.33,.52,.67,1); }
+  75% { transform: translateX(calc(-1 * var(--range))); animation-timing-function: cubic-bezier(.33,0,.67,.48); }
+  100% { transform: translateX(0); }
+}
+body.paused .circle { animation-play-state: paused; }
+
+.shark-title {
+  position: absolute; top: clamp(24px, 6vh, 64px); left: 50%; margin: 0;
+  transform: translateX(-50%); z-index: 2; pointer-events: none;
+  font-family: Impact, 'Arial Black', sans-serif; font-size: clamp(64px, 13vw, 160px);
+  font-weight: 900; line-height: .9; letter-spacing: .055em; color: #000;
+  font-style: italic; isolation: isolate;
+}
+.shark-title span { display: block; animation: shark-drift 5s ease-in-out infinite; }
+.shark-title::after {
+  content: ''; position: absolute; inset: -15% -10%;
+  background: linear-gradient(110deg, transparent 44%, #64b2d4 45%, #64b2d4 47%, transparent 48%);
+  transform: translateX(-110%); animation: shark-slash 6s ease-in-out infinite;
+}
+body[data-mode="hunting"] .shark-title span { animation: shark-strike .65s ease-out both; }
+body[data-mode="hunting"] .shark-title::after { animation: shark-slash 1.2s ease-out infinite; }
+@keyframes shark-drift {
+  0%,100% { transform: translateX(-5px) skewX(0deg); }
+  50% { transform: translateX(5px) skewX(-3deg); }
+}
+@keyframes shark-strike {
+  0% { transform: translateX(0) skewX(0deg); }
+  20% { transform: translateX(12px) skewX(-9deg); }
+  45% { transform: translateX(-3px) skewX(2deg); }
+  100% { transform: translateX(0) skewX(0deg); }
+}
+@keyframes shark-slash {
+  0%,65% { transform: translateX(-110%); }
+  85%,100% { transform: translateX(110%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shark-title span, .shark-title::after,
+  body[data-mode="hunting"] .shark-title span,
+  body[data-mode="hunting"] .shark-title::after { animation: none; }
+  .shark-title::after { display: none; }
+}
+
+/* Cinematic poster composition */
+body { font-family: Arial, Helvetica, sans-serif; }
+main { overflow: hidden; isolation: isolate; background:
+ radial-gradient(ellipse at 50% -18%, #dbf2e9 0, #a4d5df80 25%, transparent 56%),
+ linear-gradient(180deg, #64b2d4 0%, #64b2d4 28%, #367f9c 53%, #123d50 76%, #03131f 100%); }
+main::before { content:''; position:absolute; inset:-20%; z-index:-1; pointer-events:none;
+ background: repeating-conic-gradient(from 163deg at 50% 0%, transparent 0deg 8deg, #d4f6ed12 9deg 12deg, transparent 13deg 21deg);
+ filter:blur(14px); animation: light-drift 18s ease-in-out infinite alternate; }
+main::after { content:''; position:absolute; inset:0; pointer-events:none; z-index:5;
+ background:radial-gradient(ellipse at 50% 38%, transparent 35%, #000a 115%);
+ box-shadow:inset 0 0 0 14px #061e2a22; }
+.poster-top { position:absolute; top:30px; left:38px; right:38px; display:flex; justify-content:space-between;
+ font-size:10px; font-weight:700; letter-spacing:.24em; color:#092b38; z-index:3; }
+.shark-title { top:12vh; width:100%; text-align:center; font-size:clamp(100px,22vw,270px);
+ letter-spacing:-.035em; font-style:normal; line-height:.82; color:#000; }
+.shark-title span { transform:scaleX(1.08); }
+.shark-title::after { display:none; }
+.tagline { position:absolute; top:calc(12vh + clamp(100px,22vw,270px)*.82 + 26px); left:0; right:0;
+ text-align:center; margin:0; color:#082633; font-size:11px; letter-spacing:.42em; z-index:3; }
+.poster-footer { position:absolute; left:38px; right:38px; bottom:30px; z-index:6; color:#c4d9dc; text-align:center; pointer-events:none; }
+.kicker { font-size:10px; letter-spacing:.38em; color:#7fadb9; margin:0 0 14px; }
+.poster-line { font-size:clamp(16px,2vw,23px); font-weight:400; letter-spacing:.17em; margin:0 0 25px; }
+.credits { border-top:1px solid #96c1cf33; padding-top:16px; display:flex; justify-content:space-between; align-items:center;
+ font-size:9px; letter-spacing:.16em; color:#82a5b1; }
+.credits strong { font-size:10px; color:#d1e4e7; letter-spacing:.25em; font-weight:400; }
+.swimmer { z-index:1; filter:drop-shadow(12px 24px 16px #00172355); }
+.circle { background:radial-gradient(circle at 30% 20%, #a9c2ca 0%, #708090 45%, #344956 100%);
+ box-shadow:inset 0 1px 1px #e4f7ff55, inset -7px -10px 18px #0b243b33; }
+.fish { z-index:2; background:#eee6c2; box-shadow:0 0 12px #fff2bb99, 0 0 45px #fff2bb33; }
+.depth-label { position:absolute; left:38px; top:55%; writing-mode:vertical-rl; color:#b0d8e066; font-size:9px; letter-spacing:.35em; }
+.hunt-status { position:absolute; right:38px; top:55%; width:4px; height:36px; background:#c9e4e433; transition:background .3s, box-shadow .3s; }
+body[data-mode="hunting"] .hunt-status { background:#f1c39c; box-shadow:0 0 24px #f1c39c66; }
+@keyframes light-drift { from {transform:translateX(-3%) rotate(-3deg)} to {transform:translateX(3%) rotate(3deg)} }
+@media(max-width:600px) {
+ .poster-top {left:22px; right:22px; top:24px; font-size:8px; letter-spacing:.12em;}
+ .shark-title {top:17vh; font-size:27vw;}
+ .tagline {top:calc(17vh + 22vw + 20px); font-size:8px; letter-spacing:.3em;}
+ .poster-footer {left:22px;right:22px;bottom:24px;}
+ .poster-line {font-size:16px;letter-spacing:.08em;}
+ .credits {font-size:7px;letter-spacing:.05em;gap:12px;}
+ .credits strong {font-size:8px;letter-spacing:.1em;}
+ .depth-label {left:18px;} .hunt-status {right:18px;}
+}
+@media(prefers-reduced-motion:reduce) {main::before {animation:none;}}
+</style>
+</head>
+<body>
+<main aria-label="상어 꼬리지느러미의 움직임을 추상화한 애니메이션. 같은 크기의 원 세 개가 세로로 배치되어 부드럽게 좌우로 흔들립니다.">
+  <div class="poster-top"><span>60231149 이강</span><span>2026.11.04</span></div>
+  <h1 class="shark-title"><span>SHARK</span></h1>
+  <p class="tagline">WEB PRGRAMING</p>
+  <div class="depth-label" aria-hidden="true">THE DEEP IS NEVER STILL</div><div class="hunt-status" aria-hidden="true"></div>
+  <div class="swimmer"><div class="motion" role="img" aria-label="2.4초 주기로 반복하는 회색 원 세 개">
+    <div class="circle"></div><div class="circle"></div><div class="circle"></div>
+  </div></div>
+  <div class="fish" role="img" aria-label="작은 먹이 원" hidden></div>
+  <footer class="poster-footer">
+    <p class="kicker">A LIVING POSTER</p>
+    
+    <div class="credits"><span>CONCEPT &amp; MOTION STUDY</span><strong>SHARK</strong><span>DESIGN ITS MOVEMENT</span></div>
+  </footer>
+</main>
+<script>
+const swimmer = document.querySelector('.swimmer');
+const head = document.querySelector('.circle');
+const fish = document.querySelector('.fish');
+const animations = document.querySelector('.motion').getAnimations({subtree:true});
+const state = { x: innerWidth/2, y: innerHeight*.57, angle: 0,
+  target: null, wait: 2, paused: false, eaten: 0, hunting: false, roam: null };
+function setSpeed(hunting) {
+  state.hunting = hunting;
+  // Change playback rate without restarting the CSS animation's phase.
+  animations.forEach(animation => animation.updatePlaybackRate(hunting ? 4 : 1));
+  document.body.dataset.mode = hunting ? 'hunting' : 'idle';
+}
+function spawn() {
+  const margin = 48;
+  let x, y;
+  for (let i=0; i<20; i++) {
+    x = margin + Math.random()*Math.max(0,innerWidth-margin*2);
+    y = innerHeight*.44 + Math.random()*Math.max(0,innerHeight*.34);
+    if (Math.hypot(x-state.x,y-state.y)>140) break;
+  }
+  state.target = {x,y};
+  fish.style.left = x+'px'; fish.style.top = y+'px'; fish.hidden = false;
+  setSpeed(true);
+}
+function draw() {
+  swimmer.style.transform = `translate(${state.x}px, ${state.y}px) rotate(${state.angle}rad)`;
+}
+let previous;
+function frame(now) {
+  const dt = previous === undefined ? 0 : Math.min((now-previous)/1000, .04);
+  previous = now;
+  if (!state.paused) {
+    if (state.target) {
+      const dx = state.target.x-state.x, dy = state.target.y-state.y;
+      const distance = Math.hypot(dx,dy);
+      const desired = Math.atan2(dy,dx)+Math.PI/2;
+      const delta = Math.atan2(Math.sin(desired-state.angle),Math.cos(desired-state.angle));
+      state.angle += delta*Math.min(1,dt*8);
+      const step = Math.min(distance,260*dt);
+      if (distance>0) { state.x += dx/distance*step; state.y += dy/distance*step; }
+      draw();
+      const box = head.getBoundingClientRect();
+      const hx = box.left+box.width/2, hy = box.top+box.height/2;
+      // Use the actual animated front circle, with radius 40, against food radius 8.
+      if (Math.hypot(hx-state.target.x,hy-state.target.y)<=48) {
+        fish.hidden = true; state.target = null; state.eaten++;
+        state.wait = 2.5+Math.random()*2.5; state.roam = null;
+        setSpeed(false);
+      }
+    } else {
+      // Wander from the current position rather than returning to the center.
+      if (!state.roam || Math.hypot(state.roam.x-state.x,state.roam.y-state.y)<40) {
+        const marginX = Math.min(180, innerWidth*.3);
+        const marginY = Math.min(180, innerHeight*.3);
+        state.roam = {
+          x: marginX+Math.random()*Math.max(0,innerWidth-marginX*2),
+          y: innerHeight*.46+Math.random()*(innerHeight*.28)
+        };
+      }
+      const dx = state.roam.x-state.x, dy = state.roam.y-state.y;
+      const desired = Math.atan2(dy,dx)+Math.PI/2;
+      const delta = Math.atan2(Math.sin(desired-state.angle),Math.cos(desired-state.angle));
+      state.angle += delta*Math.min(1,dt*1.8);
+      state.x += Math.sin(state.angle)*65*dt;
+      state.y -= Math.cos(state.angle)*65*dt;
+      state.x = Math.max(44,Math.min(innerWidth-44,state.x));
+      state.y = Math.max(44,Math.min(innerHeight-44,state.y));
+      state.wait -= dt;
+      if (state.wait<=0) spawn();
+      draw();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+document.addEventListener('keydown', event => {
+  if (event.code !== 'Space' || event.repeat) return;
+  event.preventDefault(); state.paused = !state.paused;
+  animations.forEach(a => state.paused ? a.pause() : a.play());
+});
+addEventListener('resize', () => {
+  state.roam = null;
+  if (state.target) {
+    state.target.x = Math.max(24,Math.min(innerWidth-24,state.target.x));
+    state.target.y = Math.max(24,Math.min(innerHeight-24,state.target.y));
+    fish.style.left=state.target.x+'px'; fish.style.top=state.target.y+'px';
+  }
+});
+setSpeed(false); draw(); requestAnimationFrame(frame);
+</script>
+</body>
+</html>
